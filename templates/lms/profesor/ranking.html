@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block content %}
+<div class="animate-fade-in">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h1 class="mb-1"><i class="fas fa-trophy text-warning"></i> {% trans "Ranking de Estudiantes" %}</h1>
+            <p class="text-muted mb-0">Top 100 por puntaje acumulado en tus cursos</p>
+        </div>
+        <a href="{% url 'profesor_estudiantes_lista' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-users"></i> {% trans "Ver por curso" %}
+        </a>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-2 align-items-end">
+                <div class="col-md-8">
+                    <label class="form-label">Filtrar por curso</label>
+                    <select name="curso" class="form-select" onchange="this.form.submit()">
+                        <option value="">-- Todos mis cursos --</option>
+                        {% for c in cursos %}
+                        <option value="{{ c.id }}" {% if curso_actual and curso_actual.id == c.id %}selected{% endif %}>
+                            {{ c.titulo }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    {% if curso_actual %}
+                    <a href="{% url 'profesor_ranking' %}" class="btn btn-outline-secondary w-100">
+                        <i class="fas fa-times"></i> Quitar filtro
+                    </a>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body p-0">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width:60px" class="text-center">#</th>
+                        <th>Estudiante</th>
+                        <th>Email</th>
+                        <th class="text-end">Puntaje</th>
+                        <th class="text-center">Cursos</th>
+                        <th class="text-center">Completados</th>
+                        <th class="text-center">Certificados</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in ranking %}
+                    <tr>
+                        <td class="text-center">
+                            {% if r.posicion == 1 %}<span style="font-size:1.5rem">🥇</span>
+                            {% elif r.posicion == 2 %}<span style="font-size:1.5rem">🥈</span>
+                            {% elif r.posicion == 3 %}<span style="font-size:1.5rem">🥉</span>
+                            {% else %}<strong>{{ r.posicion }}</strong>{% endif %}
+                        </td>
+                        <td>
+                            <strong>{{ r.nombre }}</strong>
+                            <div class="small text-muted">@{{ r.username }}</div>
+                        </td>
+                        <td class="small">{{ r.email }}</td>
+                        <td class="text-end"><strong class="text-primary">{{ r.puntaje_total }}</strong></td>
+                        <td class="text-center">{{ r.cursos_count }}</td>
+                        <td class="text-center">
+                            <span class="badge bg-success">{{ r.completados }}</span>
+                        </td>
+                        <td class="text-center">
+                            {% if r.certificados > 0 %}
+                            <a href="{% url 'profesor_certificaciones_lista' %}?usuario={{ r.username }}" class="text-decoration-none">
+                                <span class="badge bg-warning">
+                                    <i class="fas fa-certificate"></i> {{ r.certificados }}
+                                </span>
+                            </a>
+                            {% else %}-{% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center text-muted py-5">
+                            <i class="fas fa-trophy fa-3x mb-3 d-block text-muted"></i>
+                            <h5>Sin datos de ranking</h5>
+                            <p>Aún no hay estudiantes con progreso en tus cursos.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

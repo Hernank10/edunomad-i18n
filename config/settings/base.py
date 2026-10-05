@@ -88,3 +88,10 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 USE_I18N = True
+
+# =============================================================================
+# CERTIFICADOS — Storage externo
+# =============================================================================
+CERTIFICADOS_ROOT = Path(r"E:\02_proyectos\eduNomad\_certificados")
+CERTIFICADOS_PDF = CERTIFICADOS_ROOT / "pdf"
+CERTIFICADOS_LOGO = CERTIFICADOS_ROOT / "logo.png"

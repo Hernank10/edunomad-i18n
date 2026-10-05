@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block content %}
+<a href="{% url 'profesor_curso_detalle' curso.id %}" class="btn btn-outline-secondary btn-sm mb-3">
+    <i class="fas fa-arrow-left"></i> Volver al curso
+</a>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="mb-1"><i class="fas fa-tasks text-success"></i> {{ practica.titulo }}</h1>
+        <p class="text-muted mb-0">{{ practica.descripcion }}</p>
+        <span class="badge bg-success">{{ practica.get_tipo_display }}</span>
+        <span class="badge bg-info">{{ practica.duracion_minutos }} min</span>
+        <span class="badge bg-warning">{{ practica.puntaje_maximo }} pts</span>
+    </div>
+    <a href="{% url 'profesor_ejercicio_nuevo_practica' practica.id %}" class="btn btn-success">
+        <i class="fas fa-plus"></i> Nuevo Ejercicio
+    </a>
+</div>
+<div class="card"><div class="card-header">Ejercicios ({{ ejercicios|length }})</div>
+<div class="card-body p-0">
+    <div class="list-group list-group-flush">
+        {% for e in ejercicios %}
+        <div class="list-group-item">
+            <div class="d-flex justify-content-between align-items-start">
+                <div class="flex-grow-1">
+                    <div class="d-flex gap-2 mb-1">
+                        <span class="badge bg-secondary">#{{ e.orden }}</span>
+                        <span class="badge bg-primary">{{ e.get_tipo_display }}</span>
+                        <span class="badge bg-info">{{ e.puntaje }} pts</span>
+                        {% if not e.is_active %}<span class="badge bg-dark">Inactivo</span>{% endif %}
+                    </div>
+                    <p class="mb-1"><strong>{{ e.pregunta }}</strong></p>
+                    {% if e.opciones %}<ul class="small mb-1">{% for op in e.opciones %}<li>{{ op }}</li>{% endfor %}</ul>{% endif %}
+                    <div class="small text-success"><i class="fas fa-check"></i> Correcta: <code>{{ e.respuesta_correcta }}</code></div>
+                    {% if e.explicacion %}<div class="small text-muted"><i class="fas fa-info-circle"></i> {{ e.explicacion }}</div>{% endif %}
+                </div>
+                <div class="ms-3">
+                    <a href="{% url 'profesor_ejercicio_editar' e.id %}" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i></a>
+                    <a href="{% url 'profesor_ejercicio_eliminar' e.id %}" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="list-group-item text-center text-muted py-4">
+            <i class="fas fa-inbox fa-2x mb-2 d-block"></i>
+            Aún no hay ejercicios. Crea el primero con el botón "Nuevo Ejercicio".
+        </div>
+        {% endfor %}
+    </div>
+</div></div>
+{% endblock %}

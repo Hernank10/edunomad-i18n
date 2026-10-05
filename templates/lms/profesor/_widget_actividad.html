@@ -1,0 +1,25 @@
+{% if actividades_widget %}
+<div class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="fas fa-history"></i> Actividad reciente</span>
+        <a href="{% url 'profesor_actividad' %}" class="btn btn-sm btn-outline-primary">
+            Ver todo <i class="fas fa-arrow-right"></i>
+        </a>
+    </div>
+    <div class="card-body p-0">
+        <div class="list-group list-group-flush">
+            {% for a in actividades_widget %}
+            <div class="list-group-item">
+                <div class="d-flex align-items-start gap-2">
+                    <i class="fas {{ a.icono }} text-{{ a.color }} mt-1"></i>
+                    <div class="flex-grow-1">
+                        <div class="small">{{ a.texto }}</div>
+                        <div class="text-muted small">{{ a.fecha|date:"d/m H:i" }}</div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}

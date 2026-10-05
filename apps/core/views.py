@@ -1025,3 +1025,97 @@ def ver_recurso(request, recurso_id):
 
     # --- Binarios y otros: descarga ---
     return FileResponse(open(ruta, "rb"), as_attachment=True, filename=ruta.name)
+
+# ============================================================
+# CERTIFICADOS — Vista HTML, PDF y verificacion publica
+# ============================================================
+from django.http import FileResponse, Http404, HttpResponse
+from apps.core import certificado_utils
+
+
+def ver_certificado(request, certificacion_id):
+    """Vista publica del certificado en HTML (diploma)."""
+    from .models import Certificacion
+    cert = get_object_or_404(Certificacion, id=certificacion_id)
+    ctx = certificado_utils.construir_contexto(cert)
+    return render(request, "lms/certificados/diploma.html", ctx)
+
+
+def ver_certificado_pdf(request, certificacion_id):
+    """Genera (o sirve desde cache) el PDF del certificado."""
+    from .models import Certificacion
+    cert = get_object_or_404(Certificacion, id=certificacion_id)
+    forzar = request.GET.get("forzar") == "1"
+    try:
+        ruta = certificado_utils.generar_pdf(cert, forzar=forzar)
+    except RuntimeError as e:
+        return HttpResponse("Error generando PDF: {}".format(e), status=500)
+
+    if not ruta.exists():
+        raise Http404("PDF no encontrado")
+
+    return FileResponse(
+        open(ruta, "rb"),
+        as_attachment=False,
+        filename="certificado_{}.pdf".format(cert.codigo_verificacion or cert.id),
+        content_type="application/pdf",
+    )
+
+
+def verificar_certificado(request, codigo=None):
+    """Pagina publica de verificacion por codigo."""
+    from .models import Certificacion
+    codigo = codigo or request.GET.get("codigo", "").strip()
+    cert = None
+    if codigo:
+        cert = Certificacion.objects.filter(
+            codigo_verificacion__iexact=codigo,
+            is_active=True,
+        ).select_related("usuario", "curso").first()
+    return render(request, "lms/certificados/verificar.html", {
+        "codigo": codigo,
+        "cert": cert,
+    })
+
+
+# ============================================================
+# Vista publica de una leccion (para estudiantes)
+# ============================================================
+from django.contrib.auth.decorators import login_required
+
+
+@login_required
+def detalle_leccion(request, leccion_id):
+    """Vista de una leccion con sus practicas y evaluaciones."""
+    from apps.language_practice.models import Lesson
+    from apps.core.models import Curso, Practica, Evaluacion
+
+    leccion = get_object_or_404(Lesson, id=leccion_id)
+    curso = Curso.objects.filter(titulo=leccion.course.title).first()
+
+    practicas = Practica.objects.filter(leccion=leccion, is_active=True).order_by("orden")
+    evaluaciones = Evaluacion.objects.filter(leccion=leccion, is_active=True).order_by("id")
+
+    # Recurso origen
+    recurso_origen = None
+    if curso:
+        titulo_norm = leccion.title.lower().strip()
+        for r in curso.recursos.all():
+            if titulo_norm[:30] in r.nombre_archivo.lower():
+                recurso_origen = r
+                break
+
+    # Progreso del alumno
+    progreso = None
+    if curso:
+        from apps.core.models import ProgresoCurso
+        progreso = ProgresoCurso.objects.filter(usuario=request.user, curso=curso).first()
+
+    return render(request, "lms/leccion_publica.html", {
+        "curso": curso,
+        "leccion": leccion,
+        "practicas": practicas,
+        "evaluaciones": evaluaciones,
+        "recurso_origen": recurso_origen,
+        "progreso": progreso,
+    })

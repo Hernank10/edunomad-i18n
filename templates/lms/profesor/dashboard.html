@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load i18n %}
-{% block title %}Panel Profesor - EduNomad{% endblock %}
+{% block title %}Panel Profesor - EduNomad{% include "lms/profesor/_widget_actividad.html" %}
+{% endblock %}
 {% block content %}
 <div class="animate-fade-in">
     <h1 class="mb-4"><i class="fas fa-chalkboard-teacher text-primary"></i> {% trans "Panel del Profesor" %}</h1>
@@ -46,7 +47,13 @@
                     <a href="{% url 'profesor_estudiantes_lista' %}" class="btn btn-info w-100 mb-2">
                         <i class="fas fa-users"></i> Ver Estudiantes
                     </a>
-                    <a href="{% url 'profesor_certificaciones_lista' %}" class="btn btn-warning w-100">
+                    <a href="{% url 'profesor_actividad' %}" class="btn btn-info w-100 mb-2">
+                        <i class="fas fa-history"></i> Actividad Reciente
+                    </a>
+                    <a href="{% url 'profesor_ranking' %}" class="btn btn-warning w-100 mb-2">
+                        <i class="fas fa-trophy"></i> Ranking de Estudiantes
+                    </a>
+                    <a href="{% url 'profesor_certificaciones_lista' %}" class="btn btn-outline-warning w-100">
                         <i class="fas fa-certificate"></i> Certificaciones
                     </a>
                 </div>
@@ -71,4 +78,5 @@
         </div>
     </div>
 </div>
+{% include "lms/profesor/_widget_actividad.html" %}
 {% endblock %}

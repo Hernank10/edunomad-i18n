@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Certificado</title>
+<style>
+    @page { size: A4 landscape; margin: 1cm; }
+    body { font-family: Times-Roman, serif; color: #2b1a08; }
+    .marco-ext {
+        border: 6px double #7a1f1f;
+        padding: 6px;
+    }
+    .marco-int {
+        border: 1px solid #b8860b;
+        padding: 20px 30px;
+        background-color: #fffaf0;
+    }
+    .esquina { color: #b8860b; font-size: 24pt; line-height: 1; }
+    .header { text-align: center; }
+    .logo { font-size: 28pt; color: #7a1f1f; letter-spacing: 6px; font-family: Times-Bold, serif; }
+    .logo-sub { font-size: 9pt; color: #8b6914; letter-spacing: 3px; margin-top: 2px; }
+    .titulo {
+        text-align: center;
+        font-size: 32pt;
+        color: #7a1f1f;
+        letter-spacing: 6px;
+        margin: 12px 0 4px 0;
+        font-family: Times-Bold, serif;
+    }
+    .subtitulo { text-align: center; font-size: 11pt; color: #8b6914; font-style: italic; margin-bottom: 8px; }
+    .linea-deco { border-top: 1px solid #b8860b; width: 200px; margin: 6px auto; }
+    .cuerpo { text-align: center; margin: 16px 0; }
+    .otorga { font-size: 11pt; color: #4a3520; }
+    .nombre-est { font-size: 26pt; color: #2b1a08; font-family: Times-Bold, serif; margin: 10px 0; }
+    .por-completar { font-size: 10pt; color: #4a3520; }
+    .curso-tit { font-size: 16pt; color: #7a1f1f; font-family: Times-Bold, serif; margin: 6px 0; }
+    .detalles { font-size: 10pt; color: #6b5b3a; margin-top: 8px; }
+    .firmas { margin-top: 30px; }
+    .firmas td { text-align: center; vertical-align: bottom; padding: 0 15px; }
+    .linea-firma { border-top: 1px solid #2b1a08; padding-top: 4px; font-size: 10pt; color: #2b1a08; }
+    .cargo { font-size: 8pt; color: #6b5b3a; letter-spacing: 1px; margin-top: 2px; }
+    .sello {
+        display: inline-block;
+        width: 80px;
+        height: 80px;
+        border: 3px double #7a1f1f;
+        color: #7a1f1f;
+        font-size: 8pt;
+        text-align: center;
+        font-weight: bold;
+    }
+    .sello-inner { display: block; padding-top: 22px; line-height: 1.1; }
+    .pie { text-align: center; font-size: 7pt; color: #8b6914; margin-top: 10px; }
+    .deco-inline { color: #b8860b; font-size: 14pt; }
+</style>
+</head>
+<body>
+
+<div class="marco-ext">
+    <div class="marco-int">
+
+        <table width="100%" border="0" cellpadding="0" cellspacing="0">
+            <tr>
+                <td width="20" align="left"  valign="top" class="esquina">*</td>
+                <td align="right" valign="top" class="esquina">*</td>
+            </tr>
+        </table>
+
+        <div class="header">
+            <div class="logo">EDUNOMAD</div>
+            <div class="logo-sub">ACADEMIA DEL SABER</div>
+        </div>
+
+        <div class="titulo">CERTIFICADO</div>
+        <div class="linea-deco"></div>
+        <div class="subtitulo">de finalizacion y aprovechamiento</div>
+
+        <div class="cuerpo">
+            <div class="otorga">Se otorga el presente certificado a:</div>
+            <div class="nombre-est">{{ estudiante.get_full_name|default:estudiante.username }}</div>
+            <div class="por-completar">por haber completado satisfactoriamente el curso</div>
+            <div class="curso-tit">&quot;{{ curso.titulo }}&quot;</div>
+            <div class="detalles">
+                Categoria: {{ curso.categoria }} &nbsp;|&nbsp;
+                Nivel: {{ curso.nivel }} &nbsp;|&nbsp;
+                Duracion: {{ curso.duracion_horas }}h &nbsp;|&nbsp;
+                Puntaje: {{ puntaje|floatformat:1 }} / 100
+            </div>
+        </div>
+
+        <table class="firmas" width="100%" border="0" cellpadding="0" cellspacing="0">
+            <tr>
+                <td width="33%">
+                    <div class="linea-firma">
+                        {% if profesor %}{{ profesor.get_full_name|default:profesor.username }}{% else %}Docente Asignado{% endif %}
+                    </div>
+                    <div class="cargo">PROFESOR DEL CURSO</div>
+                </td>
+                <td width="33%" align="center">
+                    <div class="sello">
+                        <span class="sello-inner">EDUNOMAD<br>*<br>{{ fecha|date:"Y" }}</span>
+                    </div>
+                </td>
+                <td width="33%">
+                    <div class="linea-firma">
+                        {% if admin %}{{ admin.get_full_name|default:admin.username }}{% else %}Direccion General{% endif %}
+                    </div>
+                    <div class="cargo">DIRECCION ACADEMICA</div>
+                </td>
+            </tr>
+        </table>
+
+        <div class="pie">
+            Codigo de verificacion: {{ codigo }} | Emitido: {{ fecha|date:"d/m/Y" }}
+        </div>
+
+        <table width="100%" border="0" cellpadding="0" cellspacing="0">
+            <tr>
+                <td width="20" align="left"  valign="bottom" class="esquina">*</td>
+                <td align="right" valign="bottom" class="esquina">*</td>
+            </tr>
+        </table>
+
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}Verificar Certificado{% endblock %}
+{% block content %}
+<div class="animate-fade-in">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <h1 class="mb-4 text-center">
+                <i class="fas fa-shield-alt text-primary"></i>
+                {% trans "Verificar Certificado" %}
+            </h1>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <form method="get">
+                        <label class="form-label">Codigo de verificacion</label>
+                        <div class="input-group">
+                            <input type="text" name="codigo" class="form-control"
+                                   value="{{ codigo }}"
+                                   placeholder="CERT-XXX-XXX-XXXXX">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search"></i> Verificar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            {% if codigo %}
+                {% if cert %}
+                <div class="alert alert-success">
+                    <h4 class="alert-heading">
+                        <i class="fas fa-check-circle"></i> Certificado Válido
+                    </h4>
+                    <p class="mb-1"><strong>Estudiante:</strong>
+                        {{ cert.usuario.get_full_name|default:cert.usuario.username }}</p>
+                    <p class="mb-1"><strong>Curso:</strong> {{ cert.curso.titulo }}</p>
+                    <p class="mb-1"><strong>Puntaje:</strong> {{ cert.puntaje_obtenido|floatformat:1 }} / 100</p>
+                    <p class="mb-1"><strong>Estado:</strong> {{ cert.estado }}</p>
+                    <p class="mb-0"><strong>Emitido:</strong> {{ cert.fecha_completado|date:"d/m/Y" }}</p>
+                    <hr>
+                    <a href="{% url 'ver_certificado' cert.id %}" class="btn btn-primary">
+                        <i class="fas fa-award"></i> Ver diploma
+                    </a>
+                    <a href="{% url 'ver_certificado_pdf' cert.id %}" class="btn btn-danger" target="_blank">
+                        <i class="fas fa-file-pdf"></i> Descargar PDF
+                    </a>
+                </div>
+                {% else %}
+                <div class="alert alert-danger">
+                    <h4 class="alert-heading">
+                        <i class="fas fa-times-circle"></i> Certificado No Encontrado
+                    </h4>
+                    <p class="mb-0">El codigo <code>{{ codigo }}</code> no corresponde a ningun certificado valido.</p>
+                </div>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

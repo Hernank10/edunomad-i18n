@@ -1,26 +1,90 @@
 {% extends "base.html" %}
 {% load i18n %}
 {% block content %}
-<h1 class="mb-4"><i class="fas fa-users text-primary"></i> Estudiantes</h1>
-<div class="card"><div class="card-body p-0">
-    <table class="table table-hover mb-0">
-        <thead class="table-light">
-            <tr><th>Usuario</th><th>Nombre</th><th>Email</th><th>Cursos</th><th>Completados</th><th></th></tr>
-        </thead>
-        <tbody>
-            {% for e in estudiantes %}
-            <tr>
-                <td><strong>{{ e.perfil.usuario.username }}</strong></td>
-                <td>{{ e.perfil.usuario.get_full_name }}</td>
-                <td>{{ e.perfil.usuario.email }}</td>
-                <td>{{ e.num_cursos }}</td>
-                <td><span class="badge bg-success">{{ e.completados }}</span></td>
-                <td><a href="{% url 'profesor_estudiante_detalle' e.perfil.id %}" class="btn btn-sm btn-primary"><i class="fas fa-eye"></i></a></td>
-            </tr>
-            {% empty %}
-            <tr><td colspan="6" class="text-center text-muted py-4">Sin estudiantes</td></tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div></div>
+<div class="animate-fade-in">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h1 class="mb-1"><i class="fas fa-users text-primary"></i> {% trans "Estudiantes por Curso" %}</h1>
+            <p class="text-muted mb-0">
+                {{ total_cursos }} cursos · {{ total_estudiantes }} estudiantes
+            </p>
+        </div>
+        <a href="{% url 'profesor_ranking' %}" class="btn btn-warning">
+            <i class="fas fa-trophy"></i> {% trans "Ver Ranking" %}
+        </a>
+    </div>
+
+    {% for cd in cursos_data %}
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+                <i class="fas fa-book text-primary"></i>
+                <strong>{{ cd.curso.titulo }}</strong>
+                <span class="badge bg-secondary ms-2">{{ cd.curso.categoria }}</span>
+                <span class="badge bg-info ms-1">{{ cd.curso.nivel }}</span>
+            </div>
+            <div class="d-flex gap-2">
+                <span class="badge bg-primary">{{ cd.total }} estudiantes</span>
+                <span class="badge bg-success">{{ cd.completados }} completaron</span>
+                <span class="badge bg-warning">Prom: {{ cd.promedio }}</span>
+            </div>
+        </div>
+        {% if cd.estudiantes %}
+        <div class="card-body p-0">
+            <table class="table table-hover table-sm mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width:50px">#</th>
+                        <th>Usuario</th>
+                        <th>Nombre</th>
+                        <th>Email</th>
+                        <th class="text-end">Puntaje</th>
+                        <th class="text-center">Completado</th>
+                        <th class="text-center">Certificado</th>
+                        <th class="text-end"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for e in cd.estudiantes %}
+                    <tr>
+                        <td>
+                            {% if forloop.counter == 1 %}🥇
+                            {% elif forloop.counter == 2 %}🥈
+                            {% elif forloop.counter == 3 %}🥉
+                            {% else %}{{ forloop.counter }}{% endif %}
+                        </td>
+                        <td><strong>{{ e.perfil.usuario.username }}</strong></td>
+                        <td>{{ e.perfil.usuario.get_full_name|default:"-" }}</td>
+                        <td class="small text-muted">{{ e.perfil.usuario.email }}</td>
+                        <td class="text-end"><strong>{{ e.puntaje }}</strong></td>
+                        <td class="text-center">
+                            {% if e.completado %}<span class="badge bg-success">Sí</span>
+                            {% else %}<span class="badge bg-warning">No</span>{% endif %}
+                        </td>
+                        <td class="text-center">
+                            {% if e.certificado %}<i class="fas fa-certificate text-warning"></i>
+                            {% else %}<i class="fas fa-times text-muted"></i>{% endif %}
+                        </td>
+                        <td class="text-end">
+                            <a href="{% url 'profesor_estudiante_detalle' e.perfil.id %}" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="card-body text-center text-muted py-3">
+            <i class="fas fa-user-slash"></i> Sin estudiantes inscritos en este curso
+        </div>
+        {% endif %}
+    </div>
+    {% empty %}
+    <div class="alert alert-info">
+        No diriges ningún curso actualmente. Ve a <a href="{% url 'profesor_cursos_lista' %}">Mis Cursos</a> para empezar.
+    </div>
+    {% endfor %}
+</div>
 {% endblock %}

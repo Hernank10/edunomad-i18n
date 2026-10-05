@@ -64,6 +64,7 @@
                                 <div class="small text-muted">{{ p.get_tipo_display }} · {{ p.duracion_minutos }}min</div>
                             </div>
                             <div>
+                                <a href="{% url 'profesor_practica_detalle' p.id %}" class="btn btn-sm btn-info" title="Ver ejercicios"><i class="fas fa-list"></i></a>
                                 <a href="{% url 'profesor_practica_editar' p.id %}" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i></a>
                                 <a href="{% url 'profesor_practica_eliminar' p.id %}" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></a>
                             </div>
@@ -92,6 +93,7 @@
                                 <div class="small text-muted">{{ e.get_tipo_display }} · {{ e.duracion_minutos }}min</div>
                             </div>
                             <div>
+                                <a href="{% url 'profesor_evaluacion_detalle' e.id %}" class="btn btn-sm btn-info" title="Ver ejercicios"><i class="fas fa-list"></i></a>
                                 <a href="{% url 'profesor_evaluacion_editar' e.id %}" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i></a>
                                 <a href="{% url 'profesor_evaluacion_eliminar' e.id %}" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></a>
                             </div>

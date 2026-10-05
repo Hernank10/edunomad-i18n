@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block content %}
+<div class="animate-fade-in">
+    <a href="{% url 'profesor_curso_detalle' curso.id %}" class="btn btn-outline-secondary btn-sm mb-3">
+        <i class="fas fa-arrow-left"></i> Volver al curso
+    </a>
+
+    <div class="d-flex justify-content-between align-items-start mb-4 flex-wrap gap-2">
+        <div>
+            <h1 class="mb-1">
+                <i class="fas fa-book-open text-primary"></i> {{ leccion.title }}
+            </h1>
+            <p class="text-muted mb-0">
+                Lección {{ leccion.order }} del curso "{{ curso.titulo }}"
+            </p>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+            {% if recurso_origen %}
+            <a href="{% url 'ver_recurso' recurso_origen.id %}" target="_blank" class="btn btn-info">
+                <i class="fas fa-file-code"></i> Ver recurso HTML original
+            </a>
+            {% endif %}
+            <a href="{% url 'profesor_leccion_editar' leccion.id %}" class="btn btn-warning">
+                <i class="fas fa-edit"></i> Editar lección
+            </a>
+        </div>
+    </div>
+
+    <!-- Prácticas -->
+    <div class="card mb-4">
+        <div class="card-header bg-success text-white">
+            <i class="fas fa-tasks"></i> Prácticas ({{ practicas_data|length }})
+        </div>
+        <div class="card-body">
+            {% for item in practicas_data %}
+            <div class="card mb-3">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong>{{ item.practica.titulo }}</strong>
+                        <span class="badge bg-info">{{ item.practica.duracion_minutos }} min</span>
+                        <span class="badge bg-warning">{{ item.practica.puntaje_maximo }} pts</span>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'profesor_practica_detalle' item.practica.id %}" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-edit"></i> Gestionar
+                        </a>
+                        <a href="{% url 'detalle_practica' item.practica.id %}" target="_blank" class="btn btn-sm btn-outline-success">
+                            <i class="fas fa-eye"></i> Vista alumno
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted small mb-2">
+                        {{ item.practica.descripcion|default:"Sin descripción" }}
+                    </p>
+                    <h6 class="mb-2">
+                        <i class="fas fa-list-ol"></i>
+                        Ejercicios ({{ item.ejercicios|length }})
+                    </h6>
+                    {% for ej in item.ejercicios %}
+                    <div class="border rounded p-2 mb-2 bg-light">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="flex-grow-1">
+                                <div class="d-flex gap-2 mb-1">
+                                    <span class="badge bg-secondary">#{{ ej.orden }}</span>
+                                    <span class="badge bg-primary">{{ ej.get_tipo_display }}</span>
+                                    <span class="badge bg-info">{{ ej.puntaje }} pts</span>
+                                </div>
+                                <div class="small"><strong>{{ ej.pregunta }}</strong></div>
+                                {% if ej.opciones %}
+                                <ul class="small mb-1 mt-1">
+                                    {% for op in ej.opciones %}<li>{{ op }}</li>{% endfor %}
+                                </ul>
+                                {% endif %}
+                                <div class="small text-success">
+                                    <i class="fas fa-check"></i>
+                                    Correcta: <code>{{ ej.respuesta_correcta }}</code>
+                                </div>
+                                {% if ej.explicacion %}
+                                <div class="small text-muted mt-1">
+                                    <i class="fas fa-info-circle"></i> {{ ej.explicacion }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            <a href="{% url 'profesor_ejercicio_editar' ej.id %}" class="btn btn-sm btn-warning ms-2">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="text-muted small">Sin ejercicios en esta práctica.</div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% empty %}
+            <div class="text-center text-muted py-3">
+                Sin prácticas. <a href="{% url 'profesor_practica_nueva' curso.id %}">Crear una</a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Evaluaciones -->
+    <div class="card mb-4">
+        <div class="card-header bg-warning text-dark">
+            <i class="fas fa-clipboard-check"></i> Evaluaciones ({{ evals_data|length }})
+        </div>
+        <div class="card-body">
+            {% for item in evals_data %}
+            <div class="card mb-3">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong>{{ item.evaluacion.titulo }}</strong>
+                        <span class="badge bg-info">{{ item.evaluacion.duracion_minutos }} min</span>
+                        <span class="badge bg-secondary">Nota mín: {{ item.evaluacion.nota_minima }}</span>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'profesor_evaluacion_detalle' item.evaluacion.id %}" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-edit"></i> Gestionar
+                        </a>
+                        <a href="{% url 'detalle_evaluacion' item.evaluacion.id %}" target="_blank" class="btn btn-sm btn-outline-success">
+                            <i class="fas fa-eye"></i> Vista alumno
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted small mb-2">
+                        {{ item.evaluacion.descripcion|default:"Sin descripción" }}
+                    </p>
+                    <h6 class="mb-2">
+                        <i class="fas fa-list-ol"></i>
+                        Ejercicios ({{ item.ejercicios|length }})
+                    </h6>
+                    {% for ej in item.ejercicios %}
+                    <div class="border rounded p-2 mb-2 bg-light">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="flex-grow-1">
+                                <div class="d-flex gap-2 mb-1">
+                                    <span class="badge bg-secondary">#{{ ej.orden }}</span>
+                                    <span class="badge bg-primary">{{ ej.get_tipo_display }}</span>
+                                    <span class="badge bg-info">{{ ej.puntaje }} pts</span>
+                                </div>
+                                <div class="small"><strong>{{ ej.pregunta }}</strong></div>
+                                {% if ej.opciones %}
+                                <ul class="small mb-1 mt-1">
+                                    {% for op in ej.opciones %}<li>{{ op }}</li>{% endfor %}
+                                </ul>
+                                {% endif %}
+                                <div class="small text-success">
+                                    <i class="fas fa-check"></i>
+                                    Correcta: <code>{{ ej.respuesta_correcta }}</code>
+                                </div>
+                            </div>
+                            <a href="{% url 'profesor_ejercicio_editar' ej.id %}" class="btn btn-sm btn-warning ms-2">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="text-muted small">Sin ejercicios en esta evaluación.</div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% empty %}
+            <div class="text-center text-muted py-3">
+                Sin evaluaciones. <a href="{% url 'profesor_evaluacion_nueva' curso.id %}">Crear una</a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    {% if recurso_origen %}
+    <div class="card">
+        <div class="card-header bg-info text-white">
+            <i class="fas fa-file-code"></i> Recurso HTML origen
+        </div>
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <strong>{{ recurso_origen.nombre_archivo }}</strong>
+                    <div class="small text-muted">
+                        {{ recurso_origen.categoria }} · {{ recurso_origen.tamanio_kb }} KB
+                    </div>
+                </div>
+                <a href="{% url 'ver_recurso' recurso_origen.id %}" target="_blank" class="btn btn-info">
+                    <i class="fas fa-external-link-alt"></i> Abrir recurso
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

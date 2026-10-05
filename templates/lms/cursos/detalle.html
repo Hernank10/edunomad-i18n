@@ -49,9 +49,7 @@
                                 </div>
                                 <div>
                                     <span class="badge bg-secondary me-2">Lección</span>
-                                    <button class="btn btn-sm btn-outline-primary" onclick="alert('Lección en desarrollo')">
-                                        <i class="fas fa-play"></i> Ver
-                                    </button>
+                                    <a href="{% url 'detalle_leccion' leccion.id %}" class="btn btn-sm btn-outline-primary"><i class="fas fa-play"></i> {% trans "Ver lección" %}</a>
                                 </div>
                             </div>
                         </div>
