@@ -32,3 +32,26 @@ _fix_*.py
 
 # i18n compilado
 *.mo
+# Salidas de diagnostico temporales
+_diag_*.txt
+_diag_*.log
+*.tmp
+
+# Backups locales
+*.bak_*
+*.old
+
+# Archivo raro creado por accidente en Windows
+/cd
+
+# Salidas de diagnostico temporales
+_diag_*.txt
+_diag_*.log
+*.tmp
+
+# Backups locales
+*.bak_*
+*.old
+
+# Archivo raro creado por accidente en Windows
+/cd
