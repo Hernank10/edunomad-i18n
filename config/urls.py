@@ -9,6 +9,7 @@ from django.urls import path, include
 from django.conf.urls.i18n import i18n_patterns
 
 from apps.core.views import (
+    ver_recurso,
     home, explorar_recursos, detalle_curso,
     lista_cursos, detalle_practica, detalle_evaluacion,
     subir_archivo, listar_entregas, descargar_entrega,
@@ -16,6 +17,16 @@ from apps.core.views import (
     enviar_practica, enviar_evaluacion,
     mis_certificaciones, ver_certificacion, progreso_curso,
     dashboard_gamificacion, mis_insignias, ranking_usuarios,
+)
+from apps.core.views_profesor import (
+    profesor_dashboard,
+    profesor_cursos_lista, profesor_curso_detalle,
+    profesor_curso_nuevo, profesor_curso_editar, profesor_curso_eliminar,
+    profesor_leccion_nueva, profesor_leccion_editar, profesor_leccion_eliminar,
+    profesor_practica_nueva, profesor_practica_editar, profesor_practica_eliminar,
+    profesor_evaluacion_nueva, profesor_evaluacion_editar, profesor_evaluacion_eliminar,
+    profesor_estudiantes_lista, profesor_estudiante_detalle,
+    profesor_certificaciones_lista,
 )
 from apps.core.views_auth import (
     register_view, login_view, logout_view,
@@ -58,9 +69,11 @@ urlpatterns += i18n_patterns(
     path('logout/', logout_view, name='logout'),
     path('perfil/', perfil_view, name='perfil'),
     path('dashboard/', dashboard_gamificacion, name='dashboard'),
+    path('dashboard-estudiante/', dashboard_estudiante, name='dashboard_estudiante'),
 
     # Recursos y cursos
     path('recursos/', explorar_recursos, name='explorar_recursos'),
+    path('recurso/<int:recurso_id>/', ver_recurso, name='ver_recurso'),
     path('cursos/', lista_cursos, name='lista_cursos'),
     path('cursos/<int:curso_id>/', detalle_curso, name='detalle_curso'),
 
@@ -79,5 +92,28 @@ urlpatterns += i18n_patterns(
 
     # Gamificacion
     path('insignias/', mis_insignias, name='mis_insignias'),
+
+    # ============================================================
+    # Panel del Profesor
+    # ============================================================
+    path('profesor/', profesor_dashboard, name='profesor_dashboard'),
+    path('profesor/cursos/', profesor_cursos_lista, name='profesor_cursos_lista'),
+    path('profesor/cursos/nuevo/', profesor_curso_nuevo, name='profesor_curso_nuevo'),
+    path('profesor/cursos/<int:curso_id>/', profesor_curso_detalle, name='profesor_curso_detalle'),
+    path('profesor/cursos/<int:curso_id>/editar/', profesor_curso_editar, name='profesor_curso_editar'),
+    path('profesor/cursos/<int:curso_id>/eliminar/', profesor_curso_eliminar, name='profesor_curso_eliminar'),
+    path('profesor/cursos/<int:curso_id>/lecciones/nueva/', profesor_leccion_nueva, name='profesor_leccion_nueva'),
+    path('profesor/lecciones/<int:leccion_id>/editar/', profesor_leccion_editar, name='profesor_leccion_editar'),
+    path('profesor/lecciones/<int:leccion_id>/eliminar/', profesor_leccion_eliminar, name='profesor_leccion_eliminar'),
+    path('profesor/cursos/<int:curso_id>/practicas/nueva/', profesor_practica_nueva, name='profesor_practica_nueva'),
+    path('profesor/practicas/<int:practica_id>/editar/', profesor_practica_editar, name='profesor_practica_editar'),
+    path('profesor/practicas/<int:practica_id>/eliminar/', profesor_practica_eliminar, name='profesor_practica_eliminar'),
+    path('profesor/cursos/<int:curso_id>/evaluaciones/nueva/', profesor_evaluacion_nueva, name='profesor_evaluacion_nueva'),
+    path('profesor/evaluaciones/<int:evaluacion_id>/editar/', profesor_evaluacion_editar, name='profesor_evaluacion_editar'),
+    path('profesor/evaluaciones/<int:evaluacion_id>/eliminar/', profesor_evaluacion_eliminar, name='profesor_evaluacion_eliminar'),
+    path('profesor/estudiantes/', profesor_estudiantes_lista, name='profesor_estudiantes_lista'),
+    path('profesor/estudiantes/<int:perfil_id>/', profesor_estudiante_detalle, name='profesor_estudiante_detalle'),
+    path('profesor/certificaciones/', profesor_certificaciones_lista, name='profesor_certificaciones_lista'),
+
     path('ranking/', ranking_usuarios, name='ranking_usuarios'),
 )

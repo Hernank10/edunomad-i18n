@@ -1,4 +1,9 @@
 from django.shortcuts import render, get_object_or_404
+
+from pathlib import Path
+from django.http import FileResponse
+from django.http import Http404
+from django.urls import reverse
 from django.http import JsonResponse
 from rest_framework import viewsets, filters, status
 from rest_framework.decorators import action
@@ -919,3 +924,104 @@ def ranking_usuarios(request):
         'ranking': ranking,
     }
     return render(request, 'lms/estudiante/ranking.html', context)
+
+
+# ============================================================
+# Vista: ver un recurso individual
+# ============================================================
+RAIZ_RECURSOS = Path(r"E:\04_recursos")
+
+
+def ver_recurso(request, recurso_id):
+    """Sirve el contenido de un recurso educativo.
+
+    - HTML -> render inline con boton flotante de vuelta.
+    - JSON -> formateado como <pre> con highlight.
+    - Markdown -> render si markdown esta instalado, si no <pre>.
+    - Codigo (py, js, sh, sql, css, txt...) -> <pre> con highlight.
+    - Binarios (zip, docx, pdf, img...) -> descarga.
+    """
+    recurso = get_object_or_404(RecursoEducativo, id=recurso_id)
+
+    ruta = Path(recurso.ruta_completa).resolve()
+
+    # Seguridad: evitar path traversal fuera de la raiz permitida
+    try:
+        ruta.relative_to(RAIZ_RECURSOS.resolve())
+    except ValueError:
+        raise Http404("Ruta fuera del directorio permitido")
+
+    if not ruta.exists() or not ruta.is_file():
+        raise Http404("Archivo no encontrado en disco")
+
+    ext = (recurso.extension or ruta.suffix.lstrip(".")).lower()
+
+    # --- HTML: servir crudo con boton flotante ---
+    if ext in ("html", "htm"):
+        contenido = ruta.read_text(encoding="utf-8", errors="replace")
+        volver_url = reverse("explorar_recursos")
+        inyect = (
+            "<style>"
+            "#eduNomad-back{position:fixed;top:10px;left:10px;"
+            "z-index:2147483647;padding:8px 16px;background:#4F46E5;"
+            "color:#fff;text-decoration:none;border-radius:8px;"
+            "font-family:system-ui,sans-serif;font-size:14px;"
+            "box-shadow:0 2px 10px rgba(0,0,0,.3);}"
+            "#eduNomad-back:hover{background:#4338CA;}"
+            "</style>"
+            '<a href="' + volver_url + '" id="eduNomad-back">← Volver a recursos</a>'
+        )
+        if "</body>" in contenido:
+            contenido = contenido.replace("</body>", inyect + "</body>", 1)
+        else:
+            contenido += inyect
+        return HttpResponse(contenido, content_type="text/html; charset=utf-8")
+
+    # --- JSON: formatear ---
+    if ext == "json":
+        raw = ruta.read_text(encoding="utf-8", errors="replace")
+        try:
+            import json as _json
+            data = _json.loads(raw)
+            contenido = _json.dumps(data, indent=2, ensure_ascii=False)
+        except Exception:
+            contenido = raw
+        return render(request, "lms/ver_recurso.html", {
+            "recurso": recurso,
+            "contenido": contenido,
+            "lenguaje": "json",
+            "modo": "codigo",
+        })
+
+    # --- Markdown ---
+    if ext == "md":
+        raw = ruta.read_text(encoding="utf-8", errors="replace")
+        try:
+            import markdown as _md
+            html = _md.markdown(raw, extensions=["extra"])
+            return render(request, "lms/ver_recurso.html", {
+                "recurso": recurso,
+                "contenido_html": html,
+                "modo": "html",
+            })
+        except ImportError:
+            return render(request, "lms/ver_recurso.html", {
+                "recurso": recurso,
+                "contenido": raw,
+                "lenguaje": "markdown",
+                "modo": "codigo",
+            })
+
+    # --- Codigo / texto ---
+    if ext in ("py", "js", "sh", "sql", "css", "txt", "log",
+               "cfg", "ini", "yml", "yaml", "xml", "csv", "tsv"):
+        contenido = ruta.read_text(encoding="utf-8", errors="replace")
+        return render(request, "lms/ver_recurso.html", {
+            "recurso": recurso,
+            "contenido": contenido,
+            "lenguaje": ext,
+            "modo": "codigo",
+        })
+
+    # --- Binarios y otros: descarga ---
+    return FileResponse(open(ruta, "rb"), as_attachment=True, filename=ruta.name)

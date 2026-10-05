@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}Panel Profesor - EduNomad{% endblock %}
+{% block content %}
+<div class="animate-fade-in">
+    <h1 class="mb-4"><i class="fas fa-chalkboard-teacher text-primary"></i> {% trans "Panel del Profesor" %}</h1>
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card text-center py-3"><div class="card-body">
+                <h3 class="text-primary fw-bold">{{ total_cursos }}</h3>
+                <p class="text-muted mb-0"><i class="fas fa-book"></i> Cursos</p>
+            </div></div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center py-3"><div class="card-body">
+                <h3 class="text-success fw-bold">{{ total_estudiantes }}</h3>
+                <p class="text-muted mb-0"><i class="fas fa-users"></i> Estudiantes</p>
+            </div></div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center py-3"><div class="card-body">
+                <h3 class="text-warning fw-bold">{{ total_evaluaciones }}</h3>
+                <p class="text-muted mb-0"><i class="fas fa-clipboard-check"></i> Evaluaciones</p>
+            </div></div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center py-3"><div class="card-body">
+                <h3 class="text-info fw-bold">{{ total_certificaciones }}</h3>
+                <p class="text-muted mb-0"><i class="fas fa-certificate"></i> Certificaciones</p>
+            </div></div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header"><i class="fas fa-bolt"></i> Acciones rápidas</div>
+                <div class="card-body">
+                    <a href="{% url 'profesor_cursos_lista' %}" class="btn btn-primary w-100 mb-2">
+                        <i class="fas fa-book"></i> Gestionar Cursos
+                    </a>
+                    <a href="{% url 'profesor_curso_nuevo' %}" class="btn btn-success w-100 mb-2">
+                        <i class="fas fa-plus"></i> Crear Curso Nuevo
+                    </a>
+                    <a href="{% url 'profesor_estudiantes_lista' %}" class="btn btn-info w-100 mb-2">
+                        <i class="fas fa-users"></i> Ver Estudiantes
+                    </a>
+                    <a href="{% url 'profesor_certificaciones_lista' %}" class="btn btn-warning w-100">
+                        <i class="fas fa-certificate"></i> Certificaciones
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header"><i class="fas fa-clock"></i> Cursos recientes</div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for c in cursos_recientes %}
+                        <a href="{% url 'profesor_curso_detalle' c.id %}" class="list-group-item list-group-item-action">
+                            <strong>{{ c.titulo|truncatechars:50 }}</strong>
+                            <div class="small text-muted">{{ c.categoria }} · {{ c.nivel }}</div>
+                        </a>
+                        {% empty %}
+                        <div class="list-group-item text-center text-muted py-3">Sin cursos</div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -139,6 +139,13 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
+                    {% if user.is_authenticated and user.is_staff %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'profesor_dashboard' %}">
+                                <i class="fas fa-chalkboard-teacher"></i> {% trans "Panel Profesor" %}
+                            </a>
+                        </li>
+                        {% endif %}
                     {% if user.is_authenticated %}
                         <li class="nav-item">
                             <a class="nav-link {% if request.path == url_dashboard %}active{% endif %}" href="{% url 'dashboard' %}">

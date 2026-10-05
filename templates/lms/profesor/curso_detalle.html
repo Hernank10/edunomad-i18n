@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{{ curso.titulo }}{% endblock %}
+{% block content %}
+<div class="animate-fade-in">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <a href="{% url 'profesor_cursos_lista' %}" class="btn btn-outline-secondary btn-sm mb-2">
+                <i class="fas fa-arrow-left"></i> Volver
+            </a>
+            <h1 class="mb-0"><i class="fas fa-book text-primary"></i> {{ curso.titulo }}</h1>
+            <div class="mt-2">
+                <span class="badge bg-primary">{{ curso.categoria }}</span>
+                <span class="badge bg-info">{{ curso.nivel }}</span>
+                <span class="badge bg-secondary">{{ curso.estado }}</span>
+            </div>
+        </div>
+        <div>
+            <a href="{% url 'profesor_curso_editar' curso.id %}" class="btn btn-warning"><i class="fas fa-edit"></i> Editar Curso</a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Lecciones -->
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span><i class="fas fa-list-ul"></i> Lecciones ({{ lecciones|length }})</span>
+                    <a href="{% url 'profesor_leccion_nueva' curso.id %}" class="btn btn-sm btn-success"><i class="fas fa-plus"></i> Nueva</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for l in lecciones %}
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>{{ l.order }}. {{ l.title }}</strong>
+                            </div>
+                            <div>
+                                <a href="{% url 'profesor_leccion_editar' l.id %}" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i></a>
+                                <a href="{% url 'profesor_leccion_eliminar' l.id %}" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></a>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="list-group-item text-center text-muted py-3">Sin lecciones</div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Prácticas -->
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center bg-success text-white">
+                    <span><i class="fas fa-tasks"></i> Prácticas ({{ practicas|length }})</span>
+                    <a href="{% url 'profesor_practica_nueva' curso.id %}" class="btn btn-sm btn-light"><i class="fas fa-plus"></i> Nueva</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for p in practicas %}
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>{{ p.titulo }}</strong>
+                                <div class="small text-muted">{{ p.get_tipo_display }} · {{ p.duracion_minutos }}min</div>
+                            </div>
+                            <div>
+                                <a href="{% url 'profesor_practica_editar' p.id %}" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i></a>
+                                <a href="{% url 'profesor_practica_eliminar' p.id %}" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></a>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="list-group-item text-center text-muted py-3">Sin prácticas</div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Evaluaciones -->
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center bg-warning">
+                    <span><i class="fas fa-clipboard-check"></i> Evaluaciones ({{ evaluaciones|length }})</span>
+                    <a href="{% url 'profesor_evaluacion_nueva' curso.id %}" class="btn btn-sm btn-dark"><i class="fas fa-plus"></i> Nueva</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for e in evaluaciones %}
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>{{ e.titulo }}</strong>
+                                <div class="small text-muted">{{ e.get_tipo_display }} · {{ e.duracion_minutos }}min</div>
+                            </div>
+                            <div>
+                                <a href="{% url 'profesor_evaluacion_editar' e.id %}" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i></a>
+                                <a href="{% url 'profesor_evaluacion_eliminar' e.id %}" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></a>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="list-group-item text-center text-muted py-3">Sin evaluaciones</div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recursos -->
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header bg-info text-white">
+                    <i class="fas fa-file"></i> Recursos ({{ recursos|length }})
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for r in recursos %}
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="badge bg-primary">{{ r.categoria }}</span>
+                                <strong>{{ r.nombre_archivo|truncatechars:45 }}</strong>
+                            </div>
+                            <a href="{% url 'ver_recurso' r.id %}" target="_blank" class="btn btn-sm btn-outline-primary"><i class="fas fa-eye"></i></a>
+                        </div>
+                        {% empty %}
+                        <div class="list-group-item text-center text-muted py-3">Sin recursos asignados</div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

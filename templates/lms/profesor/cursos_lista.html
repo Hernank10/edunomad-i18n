@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}Mis Cursos - Panel Profesor{% endblock %}
+{% block content %}
+<div class="animate-fade-in">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="fas fa-book text-primary"></i> {% trans "Mis Cursos" %}</h1>
+        <a href="{% url 'profesor_curso_nuevo' %}" class="btn btn-success">
+            <i class="fas fa-plus"></i> Nuevo Curso
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-body p-0">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Título</th><th>Categoría</th><th>Nivel</th>
+                        <th>Estado</th><th>Recursos</th><th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in cursos %}
+                    <tr>
+                        <td><strong>{{ c.titulo|truncatechars:40 }}</strong></td>
+                        <td><span class="badge bg-secondary">{{ c.categoria }}</span></td>
+                        <td>{{ c.nivel }}</td>
+                        <td>
+                            {% if c.estado == 'PUBLICADO' %}<span class="badge bg-success">Publicado</span>
+                            {% elif c.estado == 'BORRADOR' %}<span class="badge bg-warning">Borrador</span>
+                            {% else %}<span class="badge bg-dark">Archivado</span>{% endif %}
+                        </td>
+                        <td>{{ c.total_recursos }}</td>
+                        <td>
+                            <a href="{% url 'profesor_curso_detalle' c.id %}" class="btn btn-sm btn-primary"><i class="fas fa-eye"></i></a>
+                            <a href="{% url 'profesor_curso_editar' c.id %}" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i></a>
+                            <a href="{% url 'profesor_curso_eliminar' c.id %}" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="6" class="text-center text-muted py-4">No tienes cursos aún</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

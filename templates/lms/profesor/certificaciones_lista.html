@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block content %}
+<h1 class="mb-4"><i class="fas fa-certificate text-warning"></i> Certificaciones emitidas</h1>
+<div class="card"><div class="card-body p-0">
+    <table class="table table-hover mb-0">
+        <thead class="table-light"><tr><th>Estudiante</th><th>Curso</th><th>Puntaje</th><th>Estado</th><th>Fecha</th></tr></thead>
+        <tbody>
+        {% for c in certificaciones %}
+            <tr>
+                <td>{{ c.usuario.username }}</td>
+                <td>{{ c.curso.titulo|truncatechars:40 }}</td>
+                <td>{{ c.puntaje_obtenido }}</td>
+                <td><span class="badge bg-{{ c.estado|lower }}">{{ c.estado }}</span></td>
+                <td>{{ c.fecha_completado|date:"Y-m-d"|default:"-" }}</td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="5" class="text-center text-muted py-4">Sin certificaciones emitidas</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div></div>
+{% endblock %}

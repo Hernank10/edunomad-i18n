@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block content %}
+<h1 class="mb-4">{{ accion }} Evaluación</h1>
+<div class="card"><div class="card-body">
+    <p class="text-muted">Curso: <strong>{{ curso.titulo }}</strong></p>
+    <form method="post">
+        {% csrf_token %}
+        {% for field in form %}
+        <div class="mb-3">
+            <label class="form-label">{{ field.label }}</label>
+            {{ field }}
+            {% if field.errors %}<div class="text-danger small">{{ field.errors }}</div>{% endif %}
+        </div>
+        {% endfor %}
+        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Guardar</button>
+        <a href="{% url 'profesor_curso_detalle' curso.id %}" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div></div>
+{% endblock %}
