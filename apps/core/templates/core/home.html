@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="bg-dark text-white py-5 mb-5 shadow">
+    <div class="container py-5 text-center">
+        <h1 class="display-3 fw-bold">EduNomad: Castellano A1</h1>
+        <p class="lead mb-4">Aprende español con inteligencia artificial y ejercicios dinámicos.</p>
+        <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+            <a href="{% url 'language_practice:course_list' %}" class="btn btn-primary btn-lg px-4 gap-3">Explorar Cursos</a>
+            <a href="/admin" class="btn btn-outline-light btn-lg px-4">Panel Admin</a>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <h2 class="text-center mb-4">Cursos Destacados</h2>
+    <div class="row">
+        {% for course in courses %}
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h5 class="fw-bold">{{ course.title }}</h5>
+                    <p class="text-muted small">{{ course.description|truncatewords:15 }}</p>
+                    <a href="{% url 'language_practice:course_detail' course.id %}" class="btn btn-sm btn-link p-0 text-decoration-none">Ver más →</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

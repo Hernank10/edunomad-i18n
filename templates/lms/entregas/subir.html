@@ -1,0 +1,126 @@
+{% load static %}
+
+<div class="card mb-4">
+    <div class="card-header">
+        <i class="fas fa-upload text-primary"></i> Subir Archivo Adjunto
+    </div>
+    <div class="card-body">
+        <form id="formSubirArchivo" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="hidden" name="practica_id" value="{{ practica.id|default:'' }}">
+            <input type="hidden" name="evaluacion_id" value="{{ evaluacion.id|default:'' }}">
+            
+            <div class="mb-3">
+                <label class="form-label">Título del archivo</label>
+                <input type="text" name="titulo" class="form-control" required placeholder="Ej: Mi proyecto, Tarea 1, etc.">
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label">Descripción (opcional)</label>
+                <textarea name="descripcion" class="form-control" rows="2" placeholder="Breve descripción del archivo..."></textarea>
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label">Seleccionar archivo</label>
+                <div class="dropzone border rounded p-4 text-center" id="dropzone">
+                    <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-2"></i>
+                    <p class="text-muted">Arrastra y suelta tu archivo aquí o haz clic para seleccionar</p>
+                    <input type="file" name="archivo" class="d-none" id="fileInput" required>
+                    <button type="button" class="btn btn-outline-primary" onclick="document.getElementById('fileInput').click()">
+                        <i class="fas fa-folder-open"></i> Seleccionar archivo
+                    </button>
+                    <div id="fileInfo" class="mt-2 d-none">
+                        <span class="badge bg-info" id="fileName"></span>
+                        <span class="badge bg-secondary" id="fileSize"></span>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="progressBar" class="progress d-none">
+                <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 0%;"></div>
+            </div>
+            
+            <button type="submit" class="btn btn-success">
+                <i class="fas fa-upload"></i> Subir archivo
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+document.getElementById('fileInput').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        document.getElementById('fileName').textContent = file.name;
+        document.getElementById('fileSize').textContent = (file.size / 1024 / 1024).toFixed(2) + ' MB';
+        document.getElementById('fileInfo').classList.remove('d-none');
+    }
+});
+
+document.getElementById('formSubirArchivo').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const progressBar = document.getElementById('progressBar');
+    const progress = progressBar.querySelector('.progress-bar');
+    
+    progressBar.classList.remove('d-none');
+    progress.style.width = '0%';
+    
+    fetch('/api/subir_archivo/', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+        },
+        onUploadProgress: function(progressEvent) {
+            const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            progress.style.width = percentCompleted + '%';
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            progress.style.width = '100%';
+            setTimeout(() => {
+                location.reload();
+            }, 500);
+        } else {
+            alert('Error: ' + data.error);
+            progressBar.classList.add('d-none');
+        }
+    })
+    .catch(error => {
+        alert('Error al subir el archivo: ' + error);
+        progressBar.classList.add('d-none');
+    });
+});
+
+// Drag and drop
+const dropzone = document.getElementById('dropzone');
+['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+    dropzone.addEventListener(eventName, preventDefaults, false);
+});
+
+function preventDefaults(e) {
+    e.preventDefault();
+    e.stopPropagation();
+}
+
+dropzone.addEventListener('dragover', function(e) {
+    this.classList.add('border-primary', 'bg-light');
+});
+
+dropzone.addEventListener('dragleave', function(e) {
+    this.classList.remove('border-primary', 'bg-light');
+});
+
+dropzone.addEventListener('drop', function(e) {
+    this.classList.remove('border-primary', 'bg-light');
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+        document.getElementById('fileInput').files = files;
+        document.getElementById('fileInput').dispatchEvent(new Event('change'));
+    }
+});
+</script>

@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+
+{% block title %}{{ practica.titulo }} - EduNomad{% endblock %}
+
+{% block content %}
+<div class="animate-fade-in">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <a href="/cursos/{{ practica.curso.id }}/" class="btn btn-outline-secondary mb-2">
+                <i class="fas fa-arrow-left"></i> Volver al Curso
+            </a>
+            <h1><i class="fas fa-tasks text-success"></i> {{ practica.titulo }}</h1>
+            <p class="text-muted">{{ practica.descripcion }}</p>
+        </div>
+        <div>
+            <span class="badge bg-success">{{ practica.get_tipo_display }}</span>
+            <span class="badge bg-info">{{ practica.duracion_minutos }} min</span>
+            <span class="badge bg-warning">{{ practica.puntaje_maximo }} pts</span>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header bg-success text-white">
+            <i class="fas fa-list"></i> Ejercicios ({{ total_ejercicios }})
+        </div>
+        <div class="card-body">
+            <form id="practicaForm">
+                {% for ejercicio in ejercicios %}
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h6>Ejercicio {{ forloop.counter }}: <span class="badge bg-secondary">{{ ejercicio.get_tipo_display }}</span></h6>
+                        <p class="fw-bold">{{ ejercicio.pregunta }}</p>
+                        
+                        {% if ejercicio.tipo == 'OPCION_MULTIPLE' %}
+                            <div class="list-group">
+                                {% for opcion in ejercicio.opciones %}
+                                <label class="list-group-item">
+                                    <input type="radio" name="q{{ ejercicio.id }}" value="{{ opcion }}" class="me-2">
+                                    {{ opcion }}
+                                </label>
+                                {% endfor %}
+                            </div>
+                        {% elif ejercicio.tipo == 'VERDADERO_FALSO' %}
+                            <div class="btn-group w-100">
+                                <button type="button" class="btn btn-outline-success w-50" onclick="seleccionarOpcion(this, 'Verdadero')">Verdadero</button>
+                                <button type="button" class="btn btn-outline-danger w-50" onclick="seleccionarOpcion(this, 'Falso')">Falso</button>
+                            </div>
+                        {% else %}
+                            <input type="text" class="form-control" placeholder="Escribe tu respuesta...">
+                        {% endif %}
+                        
+                        <div class="mt-2">
+                            <span class="badge bg-info">Puntaje: {{ ejercicio.puntaje }} pts</span>
+                            <button class="btn btn-sm btn-outline-primary" onclick="verificarRespuesta(this)">
+                                <i class="fas fa-check"></i> Verificar
+                            </button>
+                        </div>
+                        <div class="feedback mt-2 d-none">
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle"></i> <span class="feedback-text"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </form>
+            
+            <button class="btn btn-success w-100" onclick="enviarPractica()">
+                <i class="fas fa-paper-plane"></i> Enviar Práctica
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+function seleccionarOpcion(btn, valor) {
+    const parent = btn.closest('.btn-group');
+    parent.querySelectorAll('.btn').forEach(b => {
+        b.classList.remove('active', 'btn-success', 'btn-danger');
+        b.className = b.className.replace(/btn-\w+/g, 'btn-outline-success');
+        if (b.textContent.trim() === 'Verdadero') {
+            b.className = 'btn btn-outline-success w-50';
+        } else {
+            b.className = 'btn btn-outline-danger w-50';
+        }
+    });
+    btn.classList.add('active');
+    if (valor === 'Verdadero') {
+        btn.className = 'btn btn-success w-50';
+    } else {
+        btn.className = 'btn btn-danger w-50';
+    }
+    btn.dataset.selected = valor;
+}
+
+function verificarRespuesta(btn) {
+    const card = btn.closest('.card-body');
+    const feedback = card.querySelector('.feedback');
+    const feedbackText = feedback.querySelector('.feedback-text');
+    
+    // Buscar la respuesta seleccionada
+    let respuesta = null;
+    const radio = card.querySelector('input[type="radio"]:checked');
+    if (radio) respuesta = radio.value;
+    
+    const verdaderoFalso = card.querySelector('.btn.active');
+    if (verdaderoFalso) respuesta = verdaderoFalso.dataset.selected;
+    
+    if (respuesta) {
+        feedback.classList.remove('d-none');
+        feedbackText.textContent = `Respuesta seleccionada: ${respuesta}`;
+        feedback.querySelector('.alert').className = 'alert alert-success';
+    } else {
+        feedback.classList.remove('d-none');
+        feedbackText.textContent = 'Por favor selecciona una respuesta';
+        feedback.querySelector('.alert').className = 'alert alert-warning';
+    }
+}
+
+function enviarPractica() {
+    if (confirm('¿Estás seguro de enviar la práctica?')) {
+        alert('✅ Práctica enviada correctamente');
+        window.location.href = '/cursos/{{ practica.curso.id }}/';
+    }
+}
+</script>
+{% endblock %}
+<!-- Sección de entregas de archivos -->
+<div class="card mt-4">
+    <div class="card-header">
+        <i class="fas fa-file-upload text-success"></i> Entregar Archivo Adicional
+    </div>
+    <div class="card-body">
+        {% include "lms/entregas/subir.html" with practica=practica %}
+        
+        <hr>
+        
+        <h6><i class="fas fa-history text-primary"></i> Mis entregas</h6>
+        <div id="misEntregas">
+            <div class="text-center text-muted">Cargando entregas...</div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Cargar entregas del usuario
+function cargarEntregas() {
+    fetch('/api/listar_entregas/?practica_id={{ practica.id }}')
+        .then(response => response.json())
+        .then(data => {
+            const container = document.getElementById('misEntregas');
+            if (data.length === 0) {
+                container.innerHTML = '<div class="text-center text-muted">No hay entregas para esta práctica</div>';
+                return;
+            }
+            
+            let html = '<div class="list-group">';
+            data.forEach(e => {
+                html += `
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>${e.titulo}</strong>
+                            <br>
+                            <small class="text-muted">
+                                <i class="fas fa-file"></i> ${e.extension || 'Sin extensión'}
+                                <i class="fas fa-weight-hanging ms-2"></i> ${e.tamanio_mb} MB
+                                <i class="fas fa-clock ms-2"></i> ${e.fecha}
+                            </small>
+                        </div>
+                        <div>
+                            <span class="badge bg-${e.estado === 'APROBADO' ? 'success' : e.estado === 'RECHAZADO' ? 'danger' : 'secondary'}">
+                                ${e.estado}
+                            </span>
+                            <a href="/api/descargar_entrega/${e.id}/" class="btn btn-sm btn-success ms-2">
+                                <i class="fas fa-download"></i>
+                            </a>
+                        </div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            container.innerHTML = html;
+        })
+        .catch(error => {
+            document.getElementById('misEntregas').innerHTML = '<div class="text-center text-danger">Error al cargar entregas</div>';
+        });
+}
+
+cargarEntregas();
+</script>

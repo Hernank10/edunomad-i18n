@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - EduNomad{% endblock %}
+
+{% block content %}
+<div class="animate-fade-in">
+    <!-- Header con nivel -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1><i class="fas fa-th-large text-primary"></i> Dashboard</h1>
+            <p class="text-muted">Bienvenido, {{ user.get_full_name|default:user.username }}</p>
+        </div>
+        <div class="text-center">
+            <span class="badge bg-{% if estadisticas.nivel == 'BRONCE' %}secondary{% elif estadisticas.nivel == 'PLATA' %}light text-dark{% elif estadisticas.nivel == 'ORO' %}warning{% elif estadisticas.nivel == 'DIAMANTE' %}info{% else %}danger{% endif %} p-3 fs-6">
+                <i class="fas fa-crown"></i> Nivel: {{ estadisticas.nivel }}
+            </span>
+        </div>
+    </div>
+
+    <!-- Estadísticas principales -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-2 col-4">
+            <div class="card text-center py-2">
+                <div class="card-body">
+                    <h4 class="text-primary fw-bold">{{ estadisticas.puntos_totales }}</h4>
+                    <small class="text-muted">Puntos</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 col-4">
+            <div class="card text-center py-2">
+                <div class="card-body">
+                    <h4 class="text-success fw-bold">{{ estadisticas.racha_actual }}</h4>
+                    <small class="text-muted">Racha 🔥</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 col-4">
+            <div class="card text-center py-2">
+                <div class="card-body">
+                    <h4 class="text-warning fw-bold">{{ estadisticas.total_insignias }}</h4>
+                    <small class="text-muted">Insignias 🏅</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 col-4">
+            <div class="card text-center py-2">
+                <div class="card-body">
+                    <h4 class="text-info fw-bold">{{ estadisticas.precision|floatformat:0 }}%</h4>
+                    <small class="text-muted">Precisión</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 col-4">
+            <div class="card text-center py-2">
+                <div class="card-body">
+                    <h4 class="text-secondary fw-bold">{{ estadisticas.certificaciones }}</h4>
+                    <small class="text-muted">Certificados</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 col-4">
+            <div class="card text-center py-2">
+                <div class="card-body">
+                    <h4 class="text-danger fw-bold">36</h4>
+                    <small class="text-muted">Cursos</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Insignias recientes -->
+    {% if estadisticas.insignias %}
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas fa-medal text-warning"></i> Mis Insignias
+            <a href="/insignias/" class="btn btn-sm btn-outline-primary float-end">Ver todas</a>
+        </div>
+        <div class="card-body">
+            <div class="d-flex flex-wrap gap-3">
+                {% for ins in estadisticas.insignias|slice:":6" %}
+                <div class="text-center" title="{{ ins.insignia.nombre }} - {{ ins.insignia.descripcion }}">
+                    <div class="display-4" style="color: {{ ins.insignia.color }}">
+                        <i class="fas {{ ins.insignia.icono }}"></i>
+                    </div>
+                    <small class="text-muted d-block">{{ ins.insignia.nombre|truncatechars:15 }}</small>
+                </div>
+                {% endfor %}
+                {% if estadisticas.total_insignias > 6 %}
+                <div class="text-center">
+                    <div class="display-4 text-muted">
+                        <i class="fas fa-plus-circle"></i>
+                    </div>
+                    <small class="text-muted">+{{ estadisticas.total_insignias|add:"-6" }} más</small>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Últimos Cursos con progreso -->
+    <div class="card">
+        <div class="card-header">
+            <i class="fas fa-graduation-cap text-primary"></i> Mi Progreso en Cursos
+        </div>
+        <div class="card-body p-0">
+            <div class="list-group list-group-flush">
+                {% for item in cursos_con_progreso|slice:":5" %}
+                <div class="list-group-item">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-0">{{ item.curso.titulo|truncatechars:40 }}</h6>
+                            <small class="text-muted">
+                                {{ item.curso.categoria }} • {{ item.curso.nivel }}
+                            </small>
+                        </div>
+                        <div class="text-end">
+                            <div class="d-flex align-items-center gap-3">
+                                <div>
+                                    <span class="badge bg-primary">{{ item.progreso.practicas_completadas }} prácticas</span>
+                                    <span class="badge bg-success">{{ item.progreso.evaluaciones_completadas }} eval.</span>
+                                </div>
+                                <span class="badge bg-{% if item.progreso.completado %}success{% else %}warning{% endif %}">
+                                    {% if item.progreso.completado %}✅ Completado{% else %}🔄 En progreso{% endif %}
+                                </span>
+                                <a href="/cursos/{{ item.curso.id }}/" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="list-group-item text-center text-muted py-4">
+                    <i class="fas fa-book-open fa-2x mb-2 d-block"></i>
+                    No has comenzado ningún curso aún.
+                    <a href="/cursos/" class="d-block mt-2">Explorar cursos →</a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

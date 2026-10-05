@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Ranking - EduNomad{% endblock %}
+
+{% block content %}
+<div class="animate-fade-in">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1><i class="fas fa-trophy text-warning"></i> Ranking de Estudiantes</h1>
+            <p class="text-muted">Los mejores estudiantes de la plataforma</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body p-0">
+            <div class="list-group list-group-flush">
+                {% for item in ranking %}
+                <div class="list-group-item d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="badge bg-{% if forloop.counter == 1 %}warning{% elif forloop.counter == 2 %}secondary{% elif forloop.counter == 3 %}bronze{% else %}light text-dark{% endif %} fs-6">
+                            #{{ forloop.counter }}
+                        </span>
+                        <div>
+                            <h6 class="mb-0">{{ item.usuario.get_full_name|default:item.usuario.username }}</h6>
+                            <small class="text-muted">
+                                <i class="fas fa-certificate"></i> {{ item.nivel_general }}
+                            </small>
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <span class="badge bg-primary fs-6">{{ item.puntos_totales }} pts</span>
+                        <span class="badge bg-success">{{ item.porcentaje_precision|floatformat:0 }}%</span>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="list-group-item text-center text-muted py-4">
+                    No hay estudiantes en el ranking aún
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

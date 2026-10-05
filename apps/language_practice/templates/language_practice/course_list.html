@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-5">
+    <div class="text-center mb-5">
+        <h1 class="display-4 fw-bold">Mis Cursos de Castellano</h1>
+        <p class="lead text-muted">Selecciona tu próximo desafío y mejora tu gramática.</p>
+    </div>
+
+    <div class="row">
+        {% for course in courses %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body">
+                    <span class="badge bg-primary mb-2">{{ course.level }}</span>
+                    <h5 class="card-title fw-bold">{{ course.title }}</h5>
+                    <p class="card-text text-secondary">{{ course.description }}</p>
+                </div>
+                <div class="card-footer bg-white border-0 pb-4">
+                    <a href="#" class="btn btn-outline-primary w-100">Explorar Lecciones</a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center">
+            <p>No hay cursos disponibles todavía. ¡Ejecuta el script de carga!</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+
+{% block title %}{{ curso.titulo }} - EduNomad{% endblock %}
+
+{% block content %}
+<div class="animate-fade-in">
+    <!-- Cabecera -->
+    <div class="card bg-primary text-white mb-4">
+        <div class="card-body py-4">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h2>{{ curso.titulo }}</h2>
+                    <p class="mb-2 opacity-75">{{ curso.descripcion }}</p>
+                    <div class="d-flex flex-wrap gap-2">
+                        <span class="badge bg-light text-dark">{{ curso.categoria }}</span>
+                        <span class="badge bg-light text-dark">{{ curso.nivel }}</span>
+                        <span class="badge bg-light text-dark">
+                            <i class="fas fa-clock"></i> {{ curso.duracion_horas }}h
+                        </span>
+                    </div>
+                </div>
+                <div class="col-md-4 text-end">
+                    <h3 class="text-white">${{ curso.precio|floatformat:2 }}</h3>
+                    <a href="/recursos/?curso={{ curso.id }}" class="btn btn-light">
+                        <i class="fas fa-book"></i> Ver Recursos
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Lecciones y Contenido -->
+        <div class="col-lg-8">
+            <!-- Lecciones -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-list-ul text-primary"></i> Lecciones del Curso
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for leccion in lecciones %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span class="badge bg-primary me-2">{{ forloop.counter }}</span>
+                                    <strong>{{ leccion.title }}</strong>
+                                </div>
+                                <div>
+                                    <span class="badge bg-secondary me-2">Lección</span>
+                                    <button class="btn btn-sm btn-outline-primary" onclick="alert('Lección en desarrollo')">
+                                        <i class="fas fa-play"></i> Ver
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="list-group-item text-center text-muted py-4">
+                            <i class="fas fa-book-open fa-2x mb-2 d-block"></i>
+                            No hay lecciones disponibles
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Prácticas -->
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <i class="fas fa-tasks"></i> Prácticas Interactivas
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for practica in curso.practicas.all %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span class="badge bg-success me-2">{{ forloop.counter }}</span>
+                                    <strong>{{ practica.titulo }}</strong>
+                                    <div class="small text-muted">
+                                        <i class="fas fa-clock"></i> {{ practica.duracion_minutos }} min
+                                        <i class="fas fa-star ms-2"></i> {{ practica.puntaje_maximo }} pts
+                                    </div>
+                                </div>
+                                <div>
+                                    <span class="badge bg-success me-2">{{ practica.get_tipo_display }}</span>
+                                    <a href="/practicas/{{ practica.id }}/" class="btn btn-sm btn-success">
+                                        <i class="fas fa-play"></i> Iniciar
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="list-group-item text-center text-muted py-3">
+                            No hay prácticas disponibles
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Evaluaciones -->
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <i class="fas fa-check-circle"></i> Evaluaciones
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for evaluacion in curso.evaluaciones.all %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span class="badge bg-warning me-2">{{ forloop.counter }}</span>
+                                    <strong>{{ evaluacion.titulo }}</strong>
+                                    <div class="small text-muted">
+                                        <i class="fas fa-clock"></i> {{ evaluacion.duracion_minutos }} min
+                                        <i class="fas fa-star ms-2"></i> {{ evaluacion.puntaje_maximo }} pts
+                                        <span class="ms-2 badge bg-info">Nota mín: {{ evaluacion.nota_minima }}%</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <span class="badge bg-warning me-2">{{ evaluacion.get_tipo_display }}</span>
+                                    <a href="/evaluaciones/{{ evaluacion.id }}/" class="btn btn-sm btn-warning">
+                                        <i class="fas fa-play"></i> Iniciar
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="list-group-item text-center text-muted py-3">
+                            No hay evaluaciones disponibles
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-info-circle text-primary"></i> Información
+                </div>
+                <div class="card-body">
+                    <p><strong>Estado:</strong> 
+                        <span class="badge {% if curso.estado == 'PUBLICADO' %}bg-success{% else %}bg-warning{% endif %}">
+                            {{ curso.estado }}
+                        </span>
+                    </p>
+                    <p><strong>Categoría:</strong> {{ curso.categoria }}</p>
+                    <p><strong>Nivel:</strong> {{ curso.nivel }}</p>
+                    <p><strong>Duración:</strong> {{ curso.duracion_horas }} horas</p>
+                    <hr>
+                    <p><strong>Estadísticas:</strong></p>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-book text-primary"></i> Recursos: {{ curso.recursos.count }}</li>
+                        <li><i class="fas fa-tasks text-success"></i> Prácticas: {{ curso.practicas.count }}</li>
+                        <li><i class="fas fa-check-circle text-warning"></i> Evaluaciones: {{ curso.evaluaciones.count }}</li>
+                    </ul>
+                    <hr>
+                    <a href="/cursos/" class="btn btn-outline-secondary w-100">
+                        <i class="fas fa-arrow-left"></i> Volver a cursos
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

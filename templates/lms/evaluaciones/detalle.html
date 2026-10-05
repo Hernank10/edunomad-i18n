@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}{{ evaluacion.titulo }} - EduNomad{% endblock %}
+
+{% block content %}
+<div class="animate-fade-in">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <a href="/cursos/{{ evaluacion.curso.id }}/" class="btn btn-outline-secondary mb-2">
+                <i class="fas fa-arrow-left"></i> Volver al Curso
+            </a>
+            <h1><i class="fas fa-check-circle text-warning"></i> {{ evaluacion.titulo }}</h1>
+            <p class="text-muted">{{ evaluacion.descripcion }}</p>
+        </div>
+        <div>
+            <span class="badge bg-warning">{{ evaluacion.get_tipo_display }}</span>
+            <span class="badge bg-info">{{ evaluacion.duracion_minutos }} min</span>
+            <span class="badge bg-danger">{{ evaluacion.puntaje_maximo }} pts</span>
+            <span class="badge bg-success">Nota mín: {{ evaluacion.nota_minima }}%</span>
+        </div>
+    </div>
+
+    <!-- Timer -->
+    <div class="card bg-dark text-white mb-4">
+        <div class="card-body text-center py-3">
+            <h4><i class="fas fa-clock"></i> Tiempo restante: <span id="timer">30:00</span></h4>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header bg-warning text-dark">
+            <i class="fas fa-list"></i> Preguntas ({{ total_ejercicios }})
+        </div>
+        <div class="card-body">
+            <form id="evaluacionForm">
+                {% for ejercicio in ejercicios %}
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h6>Pregunta {{ forloop.counter }}: <span class="badge bg-secondary">{{ ejercicio.get_tipo_display }}</span></h6>
+                        <p class="fw-bold">{{ ejercicio.pregunta }}</p>
+                        
+                        {% if ejercicio.tipo == 'OPCION_MULTIPLE' %}
+                            <div class="list-group">
+                                {% for opcion in ejercicio.opciones %}
+                                <label class="list-group-item">
+                                    <input type="radio" name="q{{ ejercicio.id }}" value="{{ opcion }}" class="me-2">
+                                    {{ opcion }}
+                                </label>
+                                {% endfor %}
+                            </div>
+                        {% elif ejercicio.tipo == 'VERDADERO_FALSO' %}
+                            <div class="btn-group w-100">
+                                <button type="button" class="btn btn-outline-success w-50" onclick="seleccionarOpcion(this, 'Verdadero')">Verdadero</button>
+                                <button type="button" class="btn btn-outline-danger w-50" onclick="seleccionarOpcion(this, 'Falso')">Falso</button>
+                            </div>
+                        {% else %}
+                            <input type="text" class="form-control" placeholder="Escribe tu respuesta...">
+                        {% endif %}
+                        
+                        <div class="mt-2">
+                            <span class="badge bg-info">Puntaje: {{ ejercicio.puntaje }} pts</span>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </form>
+            
+            <button class="btn btn-warning w-100" onclick="enviarEvaluacion()">
+                <i class="fas fa-paper-plane"></i> Enviar Evaluación
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+// Timer
+let tiempo = 30 * 60;
+const timerElement = document.getElementById('timer');
+
+function actualizarTimer() {
+    const minutos = Math.floor(tiempo / 60);
+    const segundos = tiempo % 60;
+    timerElement.textContent = `${String(minutos).padStart(2, '0')}:${String(segundos).padStart(2, '0')}`;
+    
+    if (tiempo > 0) {
+        tiempo--;
+        setTimeout(actualizarTimer, 1000);
+    } else {
+        timerElement.innerHTML = '<i class="fas fa-hourglass-end text-danger"></i> ¡Tiempo agotado!';
+        document.getElementById('evaluacionForm').submit();
+    }
+}
+actualizarTimer();
+
+function seleccionarOpcion(btn, valor) {
+    const parent = btn.closest('.btn-group');
+    parent.querySelectorAll('.btn').forEach(b => {
+        b.classList.remove('active', 'btn-success', 'btn-danger');
+        b.className = b.className.replace(/btn-\w+/g, 'btn-outline-success');
+        if (b.textContent.trim() === 'Verdadero') {
+            b.className = 'btn btn-outline-success w-50';
+        } else {
+            b.className = 'btn btn-outline-danger w-50';
+        }
+    });
+    btn.classList.add('active');
+    if (valor === 'Verdadero') {
+        btn.className = 'btn btn-success w-50';
+    } else {
+        btn.className = 'btn btn-danger w-50';
+    }
+    btn.dataset.selected = valor;
+}
+
+function enviarEvaluacion() {
+    if (confirm('¿Estás seguro de enviar la evaluación?')) {
+        alert('✅ Evaluación enviada correctamente');
+        window.location.href = '/cursos/{{ evaluacion.curso.id }}/';
+    }
+}
+</script>
+{% endblock %}

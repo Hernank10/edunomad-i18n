@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard Estudiante - EduNomad{% endblock %}
+
+{% block content %}
+<div class="animate-fade-in">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1><i class="fas fa-th-large text-primary"></i> Dashboard</h1>
+            <p class="text-muted">Bienvenido, {{ user.get_full_name|default:user.username }}</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="/perfil/" class="btn btn-outline-primary">
+                <i class="fas fa-user"></i> Perfil
+            </a>
+            <a href="/logout/" class="btn btn-outline-danger">
+                <i class="fas fa-sign-out-alt"></i> Salir
+            </a>
+        </div>
+    </div>
+    
+    <!-- Stats -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3 col-6">
+            <a href="/cursos/" class="text-decoration-none">
+                <div class="card text-center py-3 h-100">
+                    <div class="card-body">
+                        <h3 class="text-primary fw-bold">{{ total_cursos }}</h3>
+                        <p class="text-muted mb-0"><i class="fas fa-graduation-cap"></i> Cursos</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-3 col-6">
+            <a href="/recursos/" class="text-decoration-none">
+                <div class="card text-center py-3 h-100">
+                    <div class="card-body">
+                        <h3 class="text-success fw-bold">{{ total_recursos }}</h3>
+                        <p class="text-muted mb-0"><i class="fas fa-book"></i> Recursos</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="card text-center py-3 h-100">
+                <div class="card-body">
+                    <h3 class="text-warning fw-bold">{{ cursos_inscritos|default:0 }}</h3>
+                    <p class="text-muted mb-0"><i class="fas fa-check-circle"></i> Inscritos</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="card text-center py-3 h-100">
+                <div class="card-body">
+                    <h3 class="text-info fw-bold">{{ certificados|default:0 }}</h3>
+                    <p class="text-muted mb-0"><i class="fas fa-certificate"></i> Certificados</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Acciones Rápidas -->
+    <div class="row g-3">
+        <div class="col-md-4">
+            <a href="/cursos/" class="text-decoration-none">
+                <div class="card p-4 text-center h-100">
+                    <i class="fas fa-graduation-cap fa-3x text-primary mb-3"></i>
+                    <h5>Explorar Cursos</h5>
+                    <p class="text-muted small">Descubre todos los cursos disponibles</p>
+                    <span class="btn btn-primary">Ver Cursos →</span>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-4">
+            <a href="/recursos/" class="text-decoration-none">
+                <div class="card p-4 text-center h-100">
+                    <i class="fas fa-book fa-3x text-success mb-3"></i>
+                    <h5>Explorar Recursos</h5>
+                    <p class="text-muted small">Accede a todos los recursos educativos</p>
+                    <span class="btn btn-success">Ver Recursos →</span>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-4">
+            <a href="/perfil/" class="text-decoration-none">
+                <div class="card p-4 text-center h-100">
+                    <i class="fas fa-user-cog fa-3x text-warning mb-3"></i>
+                    <h5>Mi Perfil</h5>
+                    <p class="text-muted small">Gestiona tu información personal</p>
+                    <span class="btn btn-warning">Ir a Perfil →</span>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Últimos Cursos -->
+    <div class="mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4><i class="fas fa-clock text-primary"></i> Últimos Cursos</h4>
+            <a href="/cursos/" class="btn btn-sm btn-outline-primary">Ver todos</a>
+        </div>
+        <div class="row g-3">
+            {% for curso in ultimos_cursos|default:cursos %}
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h6 class="card-title">{{ curso.titulo|truncatechars:40 }}</h6>
+                        <div class="d-flex flex-wrap gap-1 mb-2">
+                            <span class="badge bg-secondary">{{ curso.categoria }}</span>
+                            <span class="badge bg-info">{{ curso.nivel }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">
+                                <i class="fas fa-book"></i> {{ curso.total_recursos|default:curso.recursos.count }}
+                            </small>
+                            <a href="/cursos/{{ curso.id }}/" class="btn btn-sm btn-primary">Ver</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <p class="text-muted">No hay cursos disponibles</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+        <!-- Certificaciones -->
+        <div class="col-md-4">
+            <a href="/certificaciones/" class="text-decoration-none">
+                <div class="card p-4 text-center h-100">
+                    <i class="fas fa-certificate fa-3x text-warning mb-3"></i>
+                    <h5>Mis Certificaciones</h5>
+                    <p class="text-muted small">Ver todos tus certificados obtenidos</p>
+                    <span class="btn btn-warning">Ver Certificados →</span>
+                </div>
+            </a>
+        </div>

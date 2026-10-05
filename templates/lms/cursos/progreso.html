@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Progreso - {{ curso.titulo }}{% endblock %}
+
+{% block content %}
+<div class="animate-fade-in">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1><i class="fas fa-chart-line text-primary"></i> Progreso</h1>
+            <p class="text-muted">{{ curso.titulo }}</p>
+        </div>
+        <a href="/cursos/{{ curso.id }}/" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Volver al Curso
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-tasks text-primary"></i> Estadísticas
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-4">
+                            <h3 class="text-primary">{{ progreso.practicas_completadas }}</h3>
+                            <p class="text-muted">Prácticas Completadas</p>
+                            <small class="text-muted">de {{ total_practicas }}</small>
+                        </div>
+                        <div class="col-4">
+                            <h3 class="text-success">{{ progreso.evaluaciones_completadas }}</h3>
+                            <p class="text-muted">Evaluaciones Completadas</p>
+                            <small class="text-muted">de {{ total_evaluaciones }}</small>
+                        </div>
+                        <div class="col-4">
+                            <h3 class="text-warning">{{ progreso.puntaje_total|floatformat:0 }}</h3>
+                            <p class="text-muted">Puntaje Total</p>
+                        </div>
+                    </div>
+                    
+                    <div class="progress mt-3" style="height: 20px;">
+                        {% with total=total_practicas|add:total_evaluaciones completado=progreso.practicas_completadas|add:progreso.evaluaciones_completadas %}
+                        <div class="progress-bar bg-success" style="width: {% if total > 0 %}{{ completado|divisibleby:total|yesno:'100,0' }}{% else %}0{% endif %}%;">
+                            {{ completado }}/{{ total }}
+                        </div>
+                        {% endwith %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-certificate text-warning"></i> Certificación
+                </div>
+                <div class="card-body text-center">
+                    {% if progreso.completado %}
+                        <i class="fas fa-check-circle fa-3x text-success"></i>
+                        <h5 class="mt-2">¡Curso Completado!</h5>
+                        <p class="text-muted">Has completado todos los requisitos</p>
+                        <a href="/certificaciones/" class="btn btn-warning">
+                            <i class="fas fa-certificate"></i> Ver Certificados
+                        </a>
+                    {% else %}
+                        <i class="fas fa-hourglass-half fa-3x text-warning"></i>
+                        <h5 class="mt-2">En Progreso</h5>
+                        <p class="text-muted">Completa más prácticas y evaluaciones</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

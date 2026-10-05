@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}Certificado - EduNomad{% endblock %}
+
+{% block content %}
+<div class="animate-fade-in">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-lg">
+                <div class="card-body p-5 text-center">
+                    <div class="border border-4 border-warning p-5 rounded-4" style="background: #FFFDF5;">
+                        <div class="mb-4">
+                            <i class="fas fa-certificate text-warning fa-4x"></i>
+                        </div>
+                        
+                        <h1 class="display-4 fw-bold text-primary">Certificado</h1>
+                        <h3 class="text-muted">de Finalización</h3>
+                        
+                        <div class="my-4">
+                            <p class="lead">Este certificado se otorga a</p>
+                            <h2 class="display-6 fw-bold">{{ certificacion.usuario.get_full_name|default:certificacion.usuario.username }}</h2>
+                            <p class="lead">por haber completado exitosamente el curso</p>
+                            <h3 class="text-primary">{{ certificacion.curso.titulo }}</h3>
+                        </div>
+                        
+                        <div class="row mt-4">
+                            <div class="col-4">
+                                <small class="text-muted d-block">Fecha de Inicio</small>
+                                <strong>{{ certificacion.fecha_inicio|date:"d/m/Y" }}</strong>
+                            </div>
+                            <div class="col-4">
+                                <small class="text-muted d-block">Fecha de Finalización</small>
+                                <strong>{{ certificacion.fecha_completado|date:"d/m/Y" }}</strong>
+                            </div>
+                            <div class="col-4">
+                                <small class="text-muted d-block">Puntuación</small>
+                                <strong>{{ certificacion.porcentaje|floatformat:1 }}%</strong>
+                            </div>
+                        </div>
+                        
+                        <hr class="my-4">
+                        
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <small class="text-muted d-block">Otorgado por</small>
+                                <strong>EduNomad Academy</strong>
+                            </div>
+                            <div>
+                                <span class="badge bg-primary">ID: {{ certificacion.codigo_verificacion }}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <button class="btn btn-primary" onclick="window.print()">
+                                <i class="fas fa-print"></i> Imprimir
+                            </button>
+                            <a href="/certificaciones/" class="btn btn-outline-secondary ms-2">
+                                <i class="fas fa-arrow-left"></i> Volver
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+{% load i18n %}
+{% get_current_language as LANGUAGE_CODE %}
+{% url 'home' as url_home %}
+{% url 'dashboard' as url_dashboard %}
+{% url 'explorar_recursos' as url_recursos %}
+{% url 'perfil' as url_perfil %}
+{% url 'logout' as url_logout %}
+{% url 'login' as url_login %}
+{% url 'register' as url_register %}
+<html lang="{{ LANGUAGE_CODE }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}EduNomad - Plataforma Educativa{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --primary-dark: #4338CA;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+            --info: #3B82F6;
+            --dark: #1F2937;
+            --gray: #6B7280;
+            --light: #F3F4F6;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: #F9FAFB;
+            min-height: 100vh;
+        }
+        .navbar { 
+            background: linear-gradient(135deg, #1F2937 0%, #111827 100%) !important;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.3);
+            padding: 12px 0;
+        }
+        .navbar-brand { 
+            color: white !important; 
+            font-weight: 700; 
+            font-size: 1.4rem;
+        }
+        .navbar-brand i { color: var(--primary); margin-right: 10px; }
+        .nav-link {
+            color: rgba(255,255,255,0.8) !important;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+        .nav-link:hover {
+            color: white !important;
+            transform: translateY(-2px);
+        }
+        .nav-link.active {
+            color: white !important;
+        }
+        .main-content {
+            padding: 30px;
+            min-height: 100vh;
+        }
+        .card {
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            background: white;
+        }
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        .card-header {
+            background: white;
+            border-bottom: 2px solid var(--primary);
+            font-weight: 600;
+            padding: 18px 24px;
+            border-radius: 16px 16px 0 0 !important;
+        }
+        .btn-primary {
+            background: var(--primary);
+            border: none;
+            padding: 10px 25px;
+            border-radius: 10px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(79, 70, 229, 0.3);
+        }
+        .animate-fade-in {
+            animation: fadeInUp 0.5s ease forwards;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .footer {
+            background: var(--dark);
+            color: rgba(255,255,255,0.7);
+            padding: 30px 0;
+            margin-top: 40px;
+        }
+        .footer a {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        .footer a:hover { color: white; }
+        @media (max-width: 768px) {
+            .main-content { padding: 15px; }
+        }
+        .user-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'home' %}">
+                <i class="fas fa-graduation-cap"></i> EduNomad
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.path == url_dashboard %}active{% endif %}" href="{% url 'dashboard' %}">
+                                <i class="fas fa-th-large"></i> {% trans "Dashboard" %}
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if url_recursos in request.path %}active{% endif %}" href="{% url 'explorar_recursos' %}">
+                                <i class="fas fa-book"></i> {% trans "Recursos" %}
+                            </a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                                <span class="user-avatar d-inline-block">
+                                    {{ user.username|first|upper }}
+                                </span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="{% url 'dashboard' %}">
+                                    <i class="fas fa-th-large"></i> {% trans "Dashboard" %}
+                                </a></li>
+                                <li><a class="dropdown-item" href="{% url 'perfil' %}">
+                                    <i class="fas fa-user"></i> {% trans "Mi Perfil" %}
+                                </a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="{% url 'logout' %}">
+                                    <i class="fas fa-sign-out-alt"></i> {% trans "Cerrar Sesión" %}
+                                </a></li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'login' %}">
+                                <i class="fas fa-sign-in-alt"></i> {% trans "Iniciar Sesión" %}
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'register' %}">
+                                <i class="fas fa-user-plus"></i> {% trans "Registrarse" %}
+                            </a>
+                        </li>
+                    {% endif %}
+                        {% get_available_languages as LANGUAGES_AVAIL %}
+                        {% get_language_info_list for LANGUAGES_AVAIL as languages %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="langDropdown"
+                               role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-globe"></i>
+                                <span class="text-uppercase">{{ LANGUAGE_CODE }}</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="langDropdown">
+                                {% for language in languages %}
+                                    <li>
+                                        <form action="{% url 'set_language' %}" method="post" class="m-0">
+                                            {% csrf_token %}
+                                            <input name="next" type="hidden" value="{{ request.get_full_path }}">
+                                            <input name="language" type="hidden" value="{{ language.code }}">
+                                            <button type="submit"
+                                                    class="dropdown-item {% if language.code == LANGUAGE_CODE %}active{% endif %}">
+                                                {{ language.name_local }}
+                                                <small class="text-muted">({{ language.code }})</small>
+                                            </button>
+                                        </form>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="main-content">
+        <div class="container">
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container text-center">
+            <p class="mb-0">&copy; {% now "Y" %} EduNomad. {% trans "Todos los derechos reservados." %}</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

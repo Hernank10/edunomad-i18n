@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}Mis Entregas - EduNomad{% endblock %}
+
+{% block content %}
+<div class="animate-fade-in">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1><i class="fas fa-file-upload text-primary"></i> Mis Entregas</h1>
+            <p class="text-muted">Archivos que has subido a prácticas y evaluaciones</p>
+        </div>
+        <div>
+            <span class="badge bg-primary fs-6">{{ entregas|length }} archivos</span>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        {% for entrega in entregas %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <span class="badge bg-{% if entrega.es_audio %}info{% elif entrega.es_imagen %}success{% elif entrega.es_pdf %}danger{% elif entrega.es_video %}warning{% else %}secondary{% endif %} mb-2">
+                                {% if entrega.es_audio %}<i class="fas fa-music"></i> Audio
+                                {% elif entrega.es_imagen %}<i class="fas fa-image"></i> Imagen
+                                {% elif entrega.es_pdf %}<i class="fas fa-file-pdf"></i> PDF
+                                {% elif entrega.es_video %}<i class="fas fa-video"></i> Video
+                                {% else %}<i class="fas fa-file"></i> Documento{% endif %}
+                            </span>
+                        </div>
+                        <span class="badge bg-{% if entrega.estado == 'APROBADO' %}success{% elif entrega.estado == 'RECHAZADO' %}danger{% elif entrega.estado == 'REVISION' %}warning{% else %}secondary{% endif %}">
+                            {{ entrega.get_estado_display }}
+                        </span>
+                    </div>
+                    
+                    <h6 class="card-title mt-2">{{ entrega.titulo }}</h6>
+                    <p class="card-text small text-muted">{{ entrega.descripcion|truncatechars:60 }}</p>
+                    
+                    <div class="mt-2">
+                        <small class="text-muted">
+                            <i class="fas fa-file"></i> {{ entrega.nombre_original }}<br>
+                            <i class="fas fa-weight-hanging"></i> {{ entrega.tamanio_mb }} MB<br>
+                            <i class="fas fa-clock"></i> {{ entrega.fecha_entrega|date:"d/m/Y H:i" }}
+                        </small>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent border-0">
+                    <div class="d-flex gap-2">
+                        <a href="/entregas/{{ entrega.id }}/" class="btn btn-sm btn-primary">
+                            <i class="fas fa-eye"></i> Ver
+                        </a>
+                        <a href="/api/descargar_entrega/{{ entrega.id }}/" class="btn btn-sm btn-success">
+                            <i class="fas fa-download"></i> Descargar
+                        </a>
+                        {% if entrega.estado == 'PENDIENTE' %}
+                        <button class="btn btn-sm btn-danger" onclick="eliminarEntrega({{ entrega.id }})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <i class="fas fa-file-upload fa-4x text-muted mb-3"></i>
+            <h4>No tienes entregas</h4>
+            <p class="text-muted">Sube archivos en las prácticas y evaluaciones</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+function eliminarEntrega(id) {
+    if (confirm('¿Estás seguro de eliminar esta entrega?')) {
+        fetch('/api/eliminar_entrega/' + id + '/', {
+            method: 'DELETE',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || '',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error: ' + data.error);
+            }
+        });
+    }
+}
+</script>
+{% endblock %}
