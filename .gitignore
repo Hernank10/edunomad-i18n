@@ -55,3 +55,10 @@ _diag_*.log
 
 # Archivo raro creado por accidente en Windows
 /cd
+
+# Backups y credenciales del seeder
+_seed_completo_backup.json
+_credenciales_completo.txt
+_credenciales_test.txt
+_seed_backup.json
+_backup_recursos.json
