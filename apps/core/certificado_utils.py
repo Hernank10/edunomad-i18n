@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Generacion de certificados PDF con xhtml2pdf."""
+"""Generacion de certificados PDF con xhtml2pdf + QR."""
 from pathlib import Path
 from io import BytesIO
 from django.conf import settings
@@ -21,8 +21,36 @@ def ruta_pdf(cert):
     return pdf_dir / nombre
 
 
+def _generar_qr_datauri(texto):
+    """Genera un QR como data-URI base64 listo para meter en HTML."""
+    try:
+        import qrcode
+    except ImportError:
+        return ""
+    try:
+        qr = qrcode.QRCode(
+            version=None,
+            error_correction=qrcode.constants.ERROR_CORRECT_M,
+            box_size=6,
+            border=2,
+        )
+        qr.add_data(texto)
+        qr.make(fit=True)
+        img = qr.make_image(fill_color="black", back_color="white")
+        buf = BytesIO()
+        img.save(buf, format="PNG")
+        import base64
+        b64 = base64.b64encode(buf.getvalue()).decode("ascii")
+        return "data:image/png;base64,{}".format(b64)
+    except Exception:
+        return ""
+
+
 def construir_contexto(cert):
     """Contexto para el template del diploma."""
+    from django.contrib.auth import get_user_model
+    from django.urls import reverse
+
     curso = cert.curso
     perfil_estudiante = getattr(cert.usuario, "perfil", None)
 
@@ -32,9 +60,21 @@ def construir_contexto(cert):
         profesor = curso.profesores.select_related("usuario").first()
 
     # Administrador principal
-    from django.contrib.auth import get_user_model
     User = get_user_model()
     admin = User.objects.filter(is_superuser=True, is_active=True).order_by("id").first()
+
+    # URL publica de verificacion
+    codigo = cert.codigo_verificacion or ""
+    url_verificacion = ""
+    try:
+        ruta = reverse("verificar_certificado_codigo", kwargs={"codigo": codigo})
+        # Intentar URL absoluta con el host actual
+        url_verificacion = ruta
+    except Exception:
+        url_verificacion = "/es/verificar/{}/".format(codigo)
+
+    # QR data-URI (apunta a la URL de verificacion relativa — el PDF se abrira local)
+    qr_uri = _generar_qr_datauri(url_verificacion) if codigo else ""
 
     return {
         "cert": cert,
@@ -43,7 +83,9 @@ def construir_contexto(cert):
         "perfil_estudiante": perfil_estudiante,
         "profesor": profesor.usuario if profesor else None,
         "admin": admin,
-        "codigo": cert.codigo_verificacion,
+        "codigo": codigo,
+        "url_verificacion": url_verificacion,
+        "qr_uri": qr_uri,
         "fecha": cert.fecha_completado or cert.fecha_inicio,
         "puntaje": cert.puntaje_obtenido,
         "porcentaje": cert.porcentaje,
